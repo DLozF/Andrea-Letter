@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter for You</title>
+    
+    <link href="https://fonts.googleapis.com/css?family=Waiting+for+the+Sunrise" rel="stylesheet" type="text/css"/>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #f5f5dc;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Waiting for the Sunrise', cursive;
+            overflow: hidden;
+        }
+
+        /* Envelope Stage */
+        .envelope-container {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .envelope-container:hover {
+            transform: scale(1.05);
+        }
+
+        .envelope {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+            transition: all 0.6s ease;
+        }
+
+        .envelope.clicked {
+            animation: openEnvelope 0.8s ease forwards;
+        }
+
+        .envelope img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.2));
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(-2deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(2deg);
+            }
+        }
+
+        @keyframes openEnvelope {
+            0% {
+                transform: scale(1) rotate(-2deg);
+                opacity: 1;
+            }
+            30% {
+                transform: scale(1.2) rotate(0deg);
+            }
+            60% {
+                transform: scale(0.8) rotate(10deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(0) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        /* Letter Stage */
+        .letter-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .letter-container.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .letter-paper {
+            background: #fff;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            padding: 60px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.5);
+            border-radius: 4px;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.6s ease;
+            scroll-behavior: smooth;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #typedtext {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #2a2a2a;
+            letter-spacing: 6px;
+            font-weight: bold;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 300px;
+        }
+
+        .cursor {
+            animation: blink 0.7s infinite;
+            font-weight: bold;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: #c0392b;
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 768px) {
+            .envelope {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .letter-paper {
+                padding: 30px;
+            }
+            
+            #typedtext {
+                font-size: 22px;
+                letter-spacing: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Envelope Stage -->
+    <div class="envelope-container" id="envelopeContainer">
+        <div class="envelope" id="envelope">
+            <img src="letter.png" alt="Letter Envelope" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'font-size: 100px;\'>💌</div>'">
+        </div>
+    </div>
+
+    <!-- Letter Stage -->
+    <div class="letter-container" id="letterContainer">
+        <div class="letter-paper" id="letterPaper">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <div id="typedtext"></div>
+        </div>
+    </div>
+
+    <script>
+        // Letter content
+        const aText = [
+            "Para Andrea,",
+            "",
+            "Espero que no andes muy cansada al leer esta notita. Te quería decir que Andrea, no mames. Te extraño demasiado.",
+            "",
+            "Desde la última vez que te vi no te quería soltar el abrazo, si ya sabes cómo me pongo cada vez que te dejo en tu casa, ahora imagínate como me sentí cuando te dejé para no verte por 2 semanas.",
+            "",
+            "Extraño tocar tu pelo, tu cara, extraño mucho tu presencia y tu olor. Tus besos y tus abrazos. Tus labios y tu frente.",
+            "",
+            "Andrea te amo demasiado y te extraño demasiado. Todavía no se me hace real que no te voy a ver hasta el 6.",
+            "",
+            "No sabes lo que haría para poder verte solo 5 minutos. Haría lo que sea, literalmente lo que sea para poder abrazarte una vez más.",
+            "",
+            "Te amo mucho Andrea y te extraño.",
+            "-Diego"
+        ];
+
+        const iSpeed = 50; // typing speed in milliseconds
+        let iIndex = 0;
+        let iArrLength = aText[0].length;
+        let iTextPos = 0;
+        let sContents = '';
+        let iRow;
+        let timeoutId;
+
+        const envelopeContainer = document.getElementById('envelopeContainer');
+        const envelope = document.getElementById('envelope');
+        const letterContainer = document.getElementById('letterContainer');
+        const letterPaper = document.getElementById('letterPaper');
+        const closeBtn = document.getElementById('closeBtn');
+        const typedtext = document.getElementById('typedtext');
+
+        // Open letter when envelope is clicked
+        envelopeContainer.addEventListener('click', function() {
+            // Add opening animation to envelope
+            envelope.classList.add('clicked');
+            
+            // Wait for animation to complete before showing letter
+            setTimeout(() => {
+                letterContainer.classList.add('show');
+                envelopeContainer.style.display = 'none';
+                
+                // Start typewriter animation
+                setTimeout(typewriter, 300);
+            }, 800);
+        });
+
+        // Close letter
+        closeBtn.addEventListener('click', function() {
+            letterContainer.classList.remove('show');
+            envelope.classList.remove('clicked');
+            envelopeContainer.style.display = 'block';
+            resetTypewriter();
+        });
+
+        function typewriter() {
+            sContents = '';
+            iRow = Math.max(0, iIndex - 20);
+            
+            while (iRow < iIndex) {
+                sContents += aText[iRow++] + '\n';
+            }
+            
+            typedtext.textContent = sContents + aText[iIndex].substring(0, iTextPos);
+            
+            // Add blinking cursor
+            const cursor = document.createElement('span');
+            cursor.className = 'cursor';
+            cursor.textContent = '|';
+            typedtext.appendChild(cursor);
+
+            // Auto-scroll to follow the cursor
+            letterPaper.scrollTop = letterPaper.scrollHeight;
+
+            if (iTextPos++ == iArrLength) {
+                iTextPos = 0;
+                iIndex++;
+                if (iIndex != aText.length) {
+                    iArrLength = aText[iIndex].length;
+                    timeoutId = setTimeout(typewriter, 500);
+                }
+            } else {
+                timeoutId = setTimeout(typewriter, iSpeed);
+            }
+        }
+
+        function resetTypewriter() {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            iIndex = 0;
+            iTextPos = 0;
+            iArrLength = aText[0].length;
+            sContents = '';
+            typedtext.textContent = '';
+            letterPaper.scrollTop = 0;
+        }
+    </script>
+</body>
+</html>
